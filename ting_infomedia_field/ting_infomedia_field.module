@@ -1,0 +1,58 @@
+<?php
+/**
+ * Field definition is moved to a seperate module in order to be able to disable
+ * modules that implements the field.
+ * see http://drupal.org/node/1285540
+ */
+
+/**
+  * Implements hook_field_info()
+  * description of field
+  */
+function ting_infomedia_field_info() {
+  $ret = array(
+    'ting_infomedia' => array(
+      'label' => t('A link to infomedia articles'),
+      'description' => t('This field links to infomedia articles'),
+      // optional (for database)
+      'settings' => array('max_length'=>255,),
+      // see hook_widget_info
+      'default_widget' => 'hidden',
+      // see hook formatter_info
+      'default_formatter' => 'ting_infomedia_default',
+      'no_ui' => TRUE,
+    ),
+  );
+  return $ret;
+}
+
+
+/**
+ * Implements hook_field_load().
+ * Notes: Define custom load behavior for this module's field types.
+ */
+function ting_infomedia_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  foreach ($entities as $id => $entity) {
+    // We could create relations as multiple values here, but it's cached after this hook, so we don't.
+    $items[$id][0] = array(
+      'id' => $id,
+    );
+  }
+}
+
+
+/**
+ * Implements hook_field_formatter_prepare_view
+ * Notes; add the field to given item(s)
+ * we could also use hook_field_load or hook_field_prepare_view
+ */
+
+function ting_infomedia_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  foreach ($entities as $id => $entity) {
+    // We could create relations as multiple values here, but it's cached after this hook, so we don't.
+    $items[$id][0] = array(
+      'id' => $id,
+    );
+  }
+}
+

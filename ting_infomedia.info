@@ -4,6 +4,8 @@ package = Ding!
 version = "7.x-1.8"
 core = 7.x
 
+dependencies[] = ting_infomedia_field
+
 dependencies[] = virtual_field
 dependencies[] = ctools
 dependencies[] = panels

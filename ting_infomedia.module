@@ -2,7 +2,7 @@
 
 // load field hooks
 module_load_include('inc', 'ting_infomedia', 'ting_infomedia.field');
-module_load_include('inc', 'ting_infomedia' , 'ting_infomedia.wrapper');
+// module_load_include('inc', 'ting_infomedia' , 'ting_infomedia.wrapper');
 
 /**
  * Implements hook_menu
@@ -71,6 +71,7 @@ function ting_infomedia_strip_path($path) {
   return FALSE;
 }
 
+
 /**
  * Inline relation types and their titles.
  */
@@ -84,6 +85,7 @@ function ting_infomedia_get_ting_relations() {
   return $types;
 }
 
+
 function ting_infomedia_anchor_info() {
   $relations =  ting_infomedia_get_ting_relations();
   // We need to know what kind of hasOnlineAccess
@@ -94,6 +96,7 @@ function ting_infomedia_anchor_info() {
   }
   return $relations;
 }
+
 
 /**
  * Implements hook_form_FORM_ID_alter (ting_admin_ting_settings) (ie. Ding2)

@@ -9,6 +9,7 @@
  * Implements hook_ding_entity_fields().
  */
 /*
+// Old Ding2 entity: do we need it?
 function ting_infomedia_ding_entity_fields() {
   return array(
     'ting_infomedia' => array(
@@ -68,7 +69,7 @@ function ting_infomedia_requirements($phase) {
     if( !isset($url) ) {
       $requirements['ting_infomedia_url'] = array(
         'title' => t('Infomedia settings'),
-        'value' =>  l(t('Url to infomedia webservice must be set in admin'), 'admin/config/ting/settings'),
+        'value' =>  l(t('Url to infomedia webservice must be set in admin'), 'admin/config/serviceclient/settings'),
         'severity' => REQUIREMENT_ERROR
       );
     }
