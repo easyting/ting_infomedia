@@ -96,18 +96,48 @@ function ting_infomedia_anchor_info() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter()
+ * Implements hook_form_FORM_ID_alter (ting_admin_ting_settings) (ie. Ding2)
  * Adding infomedia url form field to ting configuration form
  */
-function ting_infomedia_form_ting_admin_ting_settings_alter(&$form, &$form_state) {
-  $form['ting']['ting_infomedia_url'] = array(
+function ting_infomedia_form_ting_admin_ting_settings_alter(&$form, &$form_state, $form_id) {
+  $form['infomedia'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Helpdesk settings'),
+    '#description' => t('Settings for bibdk helpdesk'),
+    '#weight' => -3,
+  );
+
+  $form['infomedia']['ting_infomedia_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Infomedia web service URL'),
-    '#description' => t('URL to the infomedia webservice (access to infomedia article base) , e.g. http://useraccessinfomedia.addi.dk/1.1/'),
+    '#description' => t('URL to the infomedia webservice (access to infomedia article base) , e.g. http://useraccessinfomedia.addi.dk/1.2/'),
     '#required' => TRUE,
     '#default_value' => variable_get('ting_infomedia_url', ''),
   );
 }
+
+
+/**
+ * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings) (ie. Bibliotek.dk)
+ * Creates a field for adding a URL for the Helpdesk webservice
+ */
+function ting_infomedia_form_ting_client_admin_webservices_settings_alter(&$form, &$form_state, $form_id) {
+  $form['infomedia'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Infomedia settings'),
+    '#description' => t('Settings for bibdk Infomedia'),
+    '#weight' => -3,
+  );
+
+  $form['infomedia']['ting_infomedia_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Infomedia web service URL'),
+    '#description' => t('URL to the infomedia webservice (access to infomedia article base) , e.g. http://useraccessinfomedia.addi.dk/1.2/'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('ting_infomedia_url', ''),
+  );
+}
+
 
 /**
  * retrive article from infomedia. Parse for errors, clean html and add html for errorhandling if needed.
@@ -133,6 +163,7 @@ function ting_infomedia_parse_article($id) {
   return $html;
 }
 
+
 /**
  * Parse for general (user and/or library) errors and take appropiate action if errors are found.
  * return string; if no errors an empty, if errors html-formatted with error string
@@ -148,9 +179,10 @@ function ting_infomedia_parse_for_errors(TingClientInfomediaResult $result, &$er
   return $error;
 }
 
+
 /**
  * Parse for error on article-level. Not verified, empty etc.
- * parameter $part - an array holding óne article
+ * parameter $part - an array holding one article
  */
 function ting_infomedia_parse_for_article_error($part) {
   if( !$part['verified'] ) {
