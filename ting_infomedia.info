@@ -7,5 +7,6 @@ core = 7.x
 dependencies[] = ting_infomedia_field
 dependencies[] = ting_openformat
 dependencies[] = virtual_field
+dependencies[] = ding_user
 
 files[] = includes/ting_infomedia.field.inc

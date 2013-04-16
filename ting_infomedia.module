@@ -32,27 +32,28 @@ function ting_infomedia_theme( $existing, $type, $theme, $path ) {
   );
 }
 
-
 /**
  * Implements hook_form_FORM_ID_alter (ting_admin_ting_settings) (ie. Ding2)
  * Adding infomedia url form field to ting configuration form
  */
+/*
 function ting_infomedia_form_ting_admin_ting_settings_alter(&$form, &$form_state, $form_id) {
   $form['infomedia'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Helpdesk settings'),
-    '#description' => t('Settings for bibdk helpdesk'),
+    '#title' => t('Infomedia settings'),
+    '#description' => t('Settings for bibdk Infomedia', array(), array('context' => 'ting_infomedia')),
     '#weight' => -3,
   );
 
   $form['infomedia']['ting_infomedia_url'] = array(
     '#type' => 'textfield',
-    '#title' => t('Infomedia web service URL'),
+    '#title' => t('Infomedia web service URL', array(), array('context' => 'ting_infomedia')),
     '#description' => t('URL to the infomedia webservice (access to infomedia article base) , e.g. http://useraccessinfomedia.addi.dk/1.2/'),
     '#required' => TRUE,
     '#default_value' => variable_get('ting_infomedia_url', ''),
   );
 }
+*/
 
 
 /**
@@ -63,31 +64,17 @@ function ting_infomedia_form_ting_client_admin_webservices_settings_alter(&$form
   $form['infomedia'] = array(
     '#type' => 'fieldset',
     '#title' => t('Infomedia settings'),
-    '#description' => t('Settings for bibdk Infomedia'),
+    '#description' => t('Settings for bibdk Infomedia', array(), array('context' => 'ting_infomedia')),
     '#weight' => -3,
   );
 
   $form['infomedia']['ting_infomedia_url'] = array(
     '#type' => 'textfield',
-    '#title' => t('Infomedia web service URL'),
-    '#description' => t('URL to the infomedia webservice (access to infomedia article base) , e.g. http://useraccessinfomedia.addi.dk/1.2/'),
+    '#title' => t('Infomedia web service URL', array(), array('context' => 'ting_infomedia')),
+    '#description' => t('URL to the infomedia webservice (access to infomedia article base) , e.g. http://useraccessinfomedia.addi.dk/1.2/', array(), array('context' => 'ting_infomedia')),
     '#required' => TRUE,
     '#default_value' => variable_get('ting_infomedia_url', ''),
   );
-}
-
-
-/**
- * Inline relation types and their titles.
- */
-function ting_infomedia_get_ting_relations() {
-  static $types;
-  if (!$types) {
-    $types = array(
-      'dbcaddi:hasOnlineAccess' => t('Article from Infomedia'),
-    );
-  }
-  return $types;
 }
 
 

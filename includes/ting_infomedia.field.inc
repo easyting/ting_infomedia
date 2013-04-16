@@ -28,30 +28,14 @@ function ting_infomedia_field_formatter_info() {
 function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
 
-  $relation_types = ting_infomedia_get_ting_relations();
-// dpm($relation_types); //     dbcaddi:hasOnlineAccess (String, 22 characters ) Article from Infomedia
-// dpm($entity_type); // bibdkManifestation
-dpm($entity);
-
   foreach ($items as $delta => $item) {
-    if ( $entity->manifestation->main->type->{'$'} == 'Avisartikel' ) {
-      $link = ting_infomedia_get_link($entity->ding_entity_id);
-      $element[$delta]['#markup'] = theme('ting_infomedia_button', array('ting_infomedia_button' => $link));
-    }
-  }
-
-/*
-  foreach($items as $delta=>$items) {
-    foreach ($entity->relations as $relation) {
-      if( isset($relation_types[$relation->type]) && $entity->ac_source == 'Artikler' ) {
-        $element[$delta] =
-          array(
-            '#markup' => l(t('Read article'), ting_infomedia_get_article_link($id), array('attributes' => array('class' => 'infomedia_group', 'name'=>$relation->type))),
-          );
+    foreach ($entity->manifestation->relationsData as $relation) {
+      if ( $relation->relationType == 'dbcaddi:hasOnlineAccess' && $entity->manifestation->main->type->{'$'} == 'Avisartikel' ) {
+        $link = ting_infomedia_get_link($entity->ding_entity_id);
+        $element[$delta]['#markup'] = theme('ting_infomedia_button', array('ting_infomedia_button' => $link));
       }
     }
   }
-*/
 
   return $element;
 }
@@ -67,15 +51,14 @@ function ting_infomedia_get_link($id) {
     return array();
   }
 
-  $title = t('infomedia_link_text');
+  $title = t('infomedia_link_text', array(), array('context' => 'ting_infomedia'));
 
   $link = array(
     '#href' => ting_infomedia_get_article_link($id),
     '#title' => $title,
-    '#data-pid' => 'infomedia:' . $id,
-    '#attributes' => array('class' => 'infomedia_group', 'name'=>$relation->type),
+    'data-pid' => $id,
+    'user-message' => ting_infomedia_get_user_message(),
   );
-  // drupal_add_js(drupal_get_path('module', 'ting_infomedia') . '/js/ting_infomedia.js');
   return $link;
 }
 
@@ -88,6 +71,23 @@ function ting_infomedia_get_link($id) {
  */
 function ting_infomedia_get_article_link($entityid) {
   $ids = explode(':', $entityid);
-  return 'ting/infomedia/' . $ids[1];
+  return '#ting/infomedia/' . $ids[1];
+}
+
+
+/**
+ * Determine user message, depending on logged in status
+ *
+ * @return String
+ */
+function ting_infomedia_get_user_message() {
+  global $user;
+
+  if ( !ding_user_is_provider_user($user) ) {
+    return l(t('user_is_not_provider_user', array(), array('context' => 'ting_infomedia')), 'user');
+  }
+
+  return t('user_is_provider_user', array(), array('context' => 'ting_infomedia'));
+
 }
 

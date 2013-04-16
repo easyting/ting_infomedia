@@ -9,7 +9,6 @@
  * Implements hook_field_info().
  */
 function ting_infomedia_field_field_info() {
-dpm(__FUNCTION__);
   return array(
     'ting_infomedia_link' => array(
       'label' => t('Infomedia link'),
@@ -25,7 +24,6 @@ dpm(__FUNCTION__);
  * Implements hook_field_load().
  */
 function ting_infomedia_field_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
-dpm(__FUNCTION__);
   foreach ($entities as $id => $entity) {
     $items[$id][] = array(
       'id' => $id,
