@@ -27,6 +27,7 @@ function ting_infomedia_ding_entity_fields() {
 }
 */
 
+
 function ting_infomedia_ding_entity_fields() {
   $display_full = array(
     'default' => array (
@@ -42,7 +43,7 @@ function ting_infomedia_ding_entity_fields() {
     ),
   );
   return array(
-    'ting_infomedia' => array(
+    'ting_infomedia_link' => array(
       'field' => array(
         'locked' => FALSE,
         'storage' => array(
@@ -51,7 +52,7 @@ function ting_infomedia_ding_entity_fields() {
       ),
       'instance' => array(
         'ding_entity_type' => 'bibdkManifestation',
-        'label' => t('Read Infomedia article'),
+        'label' => t('read_infomedia_article'),
         'bundle' => 'bibdkManifestation',
         'entity_type' => 'bibdkManifestation',
         'display' => $display_full,

@@ -6,8 +6,6 @@ core = 7.x
 
 dependencies[] = ting_infomedia_field
 dependencies[] = ting_openformat
-
 dependencies[] = virtual_field
-dependencies[] = ctools
-dependencies[] = panels
-dependencies[] = page_manager
+
+files[] = includes/ting_infomedia.field.inc
