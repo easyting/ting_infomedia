@@ -15,7 +15,7 @@ function ting_infomedia_field_formatter_info() {
     'ting_infomedia_link_default' => array(
       'label' => t('Default'),
       'field types' => array(
-        'ting_infomedia_manifestation_link',
+        'ting_infomedia_link',
       ),
     )
   );

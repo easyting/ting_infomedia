@@ -52,7 +52,7 @@ function ting_infomedia_ding_entity_fields() {
       ),
       'instance' => array(
         'ding_entity_type' => 'bibdkManifestation',
-        'label' => t('read_infomedia_article'),
+        'label' => t('Read infomedia article'),
         'bundle' => 'bibdkManifestation',
         'entity_type' => 'bibdkManifestation',
         'display' => $display_full,
