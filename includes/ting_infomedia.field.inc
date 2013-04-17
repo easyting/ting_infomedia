@@ -46,14 +46,15 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
  * @internal param $id
  * @return array
  */
-function ting_infomedia_get_link($url) {
+function ting_infomedia_get_link($id, $relationUri) {
   $title = t('infomedia_link_text', array(), array('context' => 'ting_infomedia'));
 
   $link = array(
-    '#href' => ting_infomedia_convert_url_to_link($url),
+    '#href' => '#' . $id,
+    // '#href' => ting_infomedia_convert_url_to_link($url),
     '#title' => $title,
     'data-pid' => $id,
-    'user-message' => ting_infomedia_get_user_message(),
+    'user-message' => ting_infomedia_get_user_message($relationUri),
   );
   return $link;
 }
@@ -98,18 +99,32 @@ function _ting_infomedia_get_favourites() {
   return $favourites;
 }
 
+
 /**
  * Determine user message, depending on logged in status
  *
  * @return String
  */
-function ting_infomedia_get_user_message() {
+function ting_infomedia_get_user_message($relationUri) {
   global $user;
 
-  if (!ding_user_is_provider_user($user)) {
+  if ( !ding_user_is_provider_user($user) ) {
     return l(t('user_is_not_provider_user', array(), array('context' => 'ting_infomedia')), 'user');
   }
 
-  return t('user_is_provider_user', array(), array('context' => 'ting_infomedia'));
+  return l(
+    t('user_is_provider_user', array(), array('context' => 'ting_infomedia')),
+    'overlay/infomedia/' . serialize($relationUri),
+    array(
+      'attributes'=>array(
+        'title'=>'foo bar',
+        'rel'=>'infomedia',
+        'class'=>array(
+          'bibdk-popup-link',
+        )
+      )
+    )
+  );
+
 }
 
