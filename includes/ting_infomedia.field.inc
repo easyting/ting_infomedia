@@ -25,20 +25,19 @@ function ting_infomedia_field_formatter_info() {
  * Implements hook_field_formatter_view().
  */
 function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  global $user;
-  if (!ding_user_is_provider_user($user)) {
-    return;
-  }
-  
   $element = array();
 
   foreach ($items as $delta => $item) {
-
-    if ($url = $entity->getInfomediaLink()) {
-      $link = ting_infomedia_get_link($url);
-      $element[$delta]['#markup'] = theme('ting_infomedia_button', array('ting_infomedia_button' => $link));
+    foreach ($entity->manifestation->relationsData as $relation) {
+      if ( $relation->relationType == 'dbcaddi:hasOnlineAccess' && $entity->manifestation->main->type->{'$'} == 'Avisartikel' ) {
+        // $relation->relationUri:
+        // [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
+        $link = ting_infomedia_get_link($entity->ding_entity_id, $relation->relationUri);
+        $element[$delta]['#markup'] = theme('ting_infomedia_button', array('ting_infomedia_button' => $link));
+      }
     }
   }
+
   return $element;
 }
 
@@ -64,15 +63,15 @@ function ting_infomedia_convert_url_to_link ($url) {
    $favourites = _ting_infomedia_get_favourites();
   $libraryCode = NULL;
   $userId = NULL;
-  $userPinCode = NULL;  
- 
+  $userPinCode = NULL;
+
   foreach ($favourites as $fav) {
     $favourite = unserialize($fav);
      if ($favourite->getOrderAgency()) {
       $libraryCode = $favourite->getAgencyId();
       // userId can be cpr, userId, customId
-      $userId = $favourite->getUserId();
-      $userPinCode = $favourite->getPinCode();
+//      $userId = $favourite->getUserId();
+//      $userPinCode = $favourite->getPinCode();
       break;
     }
   }
@@ -80,17 +79,17 @@ function ting_infomedia_convert_url_to_link ($url) {
 $ret = str_replace(array('[useraccessinfomedia]', '[libraryCode]','[userId]','[userPinCode]'), array($wsurl,$libraryCode,$userId,$userPinCode), $url);
   }
   return $ret;
-} 
+}
 
-function _ting_infomedia_get_favourites() {  
+function _ting_infomedia_get_favourites() {
   if (isset($_SESSION['bibdk_favourites'])) {
-    $favourites = $_SESSION['bibdk_favourites'];    
+    $favourites = $_SESSION['bibdk_favourites'];
   }
   else{
-    $favourites = _bibdk_favourite_get_from_webservice(); 
+    $favourites = _bibdk_favourite_get_from_webservice();
     foreach( $favourites as $favourite ) {
       bibdk_favourite_add_favourite_to_session($favourite);
-    }    
+    }
   }
   return $favourites;
 }
