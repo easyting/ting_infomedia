@@ -2,7 +2,7 @@
 
 // load field hooks
 module_load_include('inc', 'ting_infomedia', 'includes/ting_infomedia.field');
-module_load_include('inc', 'ting_infomedia', 'includes/ting_infomedia.wrapper');
+module_load_include('inc', 'ting_infomedia', 'includes/ting_infomedia.webservice');
 
 
 /**
@@ -126,11 +126,10 @@ function ting_infomedia_ting_openformat_getobject_params() {
  */
 function ting_infomedia_parse_article($id) {
   $html = FALSE;
-  dpm(unserialize($id));
-
-  return '<p>foor bark</p>';
 
   $obj = ting_infomedia_get_article($id);
+
+  return '<p>foor bark</p>';
 
   if( !empty($obj->error)) {
     return ting_infomedia_parse_for_errors($obj);

@@ -12,3 +12,4 @@ dependencies[] = virtual_field
 
 
 files[] = includes/ting_infomedia.field.inc
+files[] = includes/ting_infomedia.webservice.inc

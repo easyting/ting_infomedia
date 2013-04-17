@@ -10,6 +10,8 @@ module_load_include('client.inc', 'ting');
 
 function ting_infomedia_get_article($id) {
 dpm(__FUNCTION__);
+
+/*
   try {
     $factory = ting_get_request_factory();
   }
@@ -25,6 +27,7 @@ dpm(__FUNCTION__);
   $ret = $request->parse(ting_execute($request->getRequest()));
 
   return $ret;
+*/
 }
 
 /**

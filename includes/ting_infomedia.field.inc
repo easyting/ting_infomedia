@@ -74,12 +74,14 @@ function ting_infomedia_convert_url_to_link() {
 
   foreach ($favourites as $fav) {
     $favourite = unserialize($fav);
+/*
     if ($favourite->getOrderAgency()) {
       $libraryCode = $favourite->getAgencyId();
       $userId = $favourite->getUserId();
       $userPinCode = $favourite->getPinCode();
       break;
     }
+*/
   }
   if ($libraryCode && $userId && $userPinCode) {
     $ret = str_replace(array('[useraccessinfomedia]', '[libraryCode]', '[userId]', '[userPinCode]'), array($wsurl, $libraryCode, $userId, $userPinCode), $url);
@@ -116,9 +118,18 @@ function ting_infomedia_get_user_message($relationUri) {
     return l(t('user_is_not_provider_user', array(), array('context' => 'ting_infomedia')), 'user');
   }
 
+  // NOTE url is of type   [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
+  $parts = explode('&', $relationUri);
+  foreach ( $parts as $part ) {
+    $part = explode('=', $part);
+    if ( $part[0] == 'faust' ) {
+      $faust = $part[1];
+    }
+  }
+
   return l(
     t('user_is_provider_user', array(), array('context' => 'ting_infomedia')),
-    'overlay/infomedia/' . serialize($relationUri),
+    'overlay/infomedia/' . $faust,
     array(
       'attributes'=>array(
         'title'=>'foo bar',
