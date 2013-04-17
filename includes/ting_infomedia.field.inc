@@ -29,7 +29,7 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
 
   foreach ($items as $delta => $item) {
     foreach ($entity->manifestation->relationsData as $relation) {
-      if ( $relation->relationType == 'dbcaddi:hasOnlineAccess' && $entity->manifestation->main->type->{'$'} == 'Avisartikel' ) {
+      if ($relation->relationType == 'dbcaddi:hasOnlineAccess' && $entity->manifestation->main->type->{'$'} == 'Avisartikel') {
         // $relation->relationUri:
         // [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
         $link = ting_infomedia_get_link($entity->ding_entity_id, $relation->relationUri);
@@ -42,7 +42,8 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
 }
 
 /**
- * @param $id
+ * @param $url
+ * @internal param $id
  * @return array
  */
 function ting_infomedia_get_link($url) {
@@ -57,37 +58,40 @@ function ting_infomedia_get_link($url) {
   return $link;
 }
 
-function ting_infomedia_convert_url_to_link ($url) {
-// NOTE url is of type   [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
-   $wsurl = variable_get('ting_infomedia_url', FALSE);
-   $favourites = _ting_infomedia_get_favourites();
+function ting_infomedia_convert_url_to_link($url) {
+  // NOTE url is of type   [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
+  $wsurl = variable_get('ting_infomedia_url', FALSE);
+  $favourites = _ting_infomedia_get_favourites();
   $libraryCode = NULL;
   $userId = NULL;
   $userPinCode = NULL;
 
   foreach ($favourites as $fav) {
     $favourite = unserialize($fav);
-     if ($favourite->getOrderAgency()) {
+    if ($favourite->getOrderAgency()) {
       $libraryCode = $favourite->getAgencyId();
       // userId can be cpr, userId, customId
-//      $userId = $favourite->getUserId();
-//      $userPinCode = $favourite->getPinCode();
+      //      $userId = $favourite->getUserId();
+      //      $userPinCode = $favourite->getPinCode();
       break;
     }
   }
-  if( $libraryCode && $userId && $userPinCode ){
-$ret = str_replace(array('[useraccessinfomedia]', '[libraryCode]','[userId]','[userPinCode]'), array($wsurl,$libraryCode,$userId,$userPinCode), $url);
+  if ($libraryCode && $userId && $userPinCode) {
+    $ret = str_replace(array('[useraccessinfomedia]', '[libraryCode]', '[userId]', '[userPinCode]'), array($wsurl, $libraryCode, $userId, $userPinCode), $url);
   }
   return $ret;
 }
 
+/**
+ * @return TingClientAgencyBranch
+ */
 function _ting_infomedia_get_favourites() {
   if (isset($_SESSION['bibdk_favourites'])) {
     $favourites = $_SESSION['bibdk_favourites'];
   }
-  else{
+  else {
     $favourites = _bibdk_favourite_get_from_webservice();
-    foreach( $favourites as $favourite ) {
+    foreach ($favourites as $favourite) {
       bibdk_favourite_add_favourite_to_session($favourite);
     }
   }
