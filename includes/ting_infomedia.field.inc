@@ -51,7 +51,7 @@ function ting_infomedia_get_link($id, $relationUri) {
 
   $link = array(
     '#href' => '#' . $id,
-    // '#href' => ting_infomedia_convert_url_to_link($url),
+    // '#href' => ting_infomedia_convert_url_to_link(),
     '#title' => $title,
     'data-pid' => $id,
     'user-message' => ting_infomedia_get_user_message($relationUri),
@@ -59,8 +59,12 @@ function ting_infomedia_get_link($id, $relationUri) {
   return $link;
 }
 
-function ting_infomedia_convert_url_to_link($url) {
-  // NOTE url is of type   [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
+/**
+ * @return mixed
+ */
+function ting_infomedia_convert_url_to_link() {
+  // NOTE url is of type
+  $url = '[useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]';
   $wsurl = variable_get('ting_infomedia_url', FALSE);
   $favourites = _ting_infomedia_get_favourites();
   $libraryCode = NULL;
@@ -71,9 +75,8 @@ function ting_infomedia_convert_url_to_link($url) {
     $favourite = unserialize($fav);
     if ($favourite->getOrderAgency()) {
       $libraryCode = $favourite->getAgencyId();
-      // userId can be cpr, userId, customId
-      //      $userId = $favourite->getUserId();
-      //      $userPinCode = $favourite->getPinCode();
+      $userId = $favourite->getUserId();
+      $userPinCode = $favourite->getPinCode();
       break;
     }
   }
