@@ -64,6 +64,7 @@ function ting_infomedia_get_link($id, $relationUri) {
  */
 function ting_infomedia_convert_url_to_link() {
   // NOTE url is of type
+  //XXX get/set faust - currently hardcoded!
   $url = '[useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]';
   $wsurl = variable_get('ting_infomedia_url', FALSE);
   $favourites = _ting_infomedia_get_favourites();
