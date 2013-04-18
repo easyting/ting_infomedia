@@ -106,7 +106,13 @@ function _ting_infomedia_get_user_status() {
     return 'user_incomplete_userdata';
   }
 
-  // to do: check om favoritbibliotek har adgang til Infomedia
+  $libraryList = bibdk_navfors_get_library_list('infomedia');
+
+  if ( !in_array($libraryCode, $libraryList) ) {
+    return 'not_infomedia_library';
+  }
+
+  // to do: bor_check
 
   return 'user_is_infomedia_user';
 }
@@ -145,6 +151,11 @@ function _ting_infomedia_get_user_message($user_status, $relationUri) {
     CASE 'user_no_userdata':
     CASE 'user_incomplete_userdata':
           return l( t($user_status, array(), array('context' => 'ting_infomedia')), 'user/' . $user->uid . '/edit/bibdk_favourite_list');
+          break;
+    CASE 'not_infomedia_library':
+          return
+            l( t($user_status, array(), array('context' => 'ting_infomedia')), 'user/' . $user->uid . '/edit/bibdk_favourite_list') . '<br/>' .
+            l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes'=>array('rel'=>'help', 'class'=>array('bibdk-popup-link'))));
           break;
     DEFAULT:
           return  t($user_status, array(), array('context' => 'ting_infomedia'));

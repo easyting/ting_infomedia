@@ -6,6 +6,6 @@
 </a>
 
 <div class='element-wrapper visuallyhidden infomedia-wrapper'>
-  <span class="user-msg"><?php print $ting_infomedia_button['#user-message'] ?></span>
-  <span class='close icon icon-left icon-red-x'>&nbsp;</span>
+  <p class="user-msg"><?php print $ting_infomedia_button['#user-message'] ?></p>
+  <p class='close icon icon-left icon-red-x'>&nbsp;</p>
 </div>
