@@ -6,6 +6,17 @@ module_load_include('inc', 'ting_infomedia', 'includes/ting_infomedia.webservice
 
 
 /**
+ * Implements hook_ting_client_webservice (@see ting_client.module)
+ * */
+function ting_infomedia_ting_client_webservice() {
+  $ret = array();
+  $ret['infomediaArticle']['class'] = 'TingClientInfomediaArticleRequest';
+  $ret['infomediaArticle']['url'] = 'ting_infomedia_url';
+  
+  return $ret;
+}
+
+/**
  * Implements hook_menu
  */
 function ting_infomedia_menu() {
