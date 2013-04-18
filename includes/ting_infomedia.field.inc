@@ -72,19 +72,24 @@ function ting_infomedia_convert_url_to_link() {
   $userId = NULL;
   $userPinCode = NULL;
 
+  if (empty($favourites)) {
+    // user has no favourite library - set some message
+  }
+  
   foreach ($favourites as $fav) {
     $favourite = unserialize($fav);
-/*
     if ($favourite->getOrderAgency()) {
       $libraryCode = $favourite->getAgencyId();
       $userId = $favourite->getUserId();
       $userPinCode = $favourite->getPinCode();
       break;
     }
-*/
   }
   if ($libraryCode && $userId && $userPinCode) {
     $ret = str_replace(array('[useraccessinfomedia]', '[libraryCode]', '[userId]', '[userPinCode]'), array($wsurl, $libraryCode, $userId, $userPinCode), $url);
+  }
+  else{
+    // user has incomplete userdata - set some message
   }
   return $ret;
 }
