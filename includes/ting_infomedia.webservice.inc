@@ -6,13 +6,28 @@
  * @return TingClientInfomediaResult
  */
 
-module_load_include('client.inc', 'ting');
+//module_load_include('client.inc', 'ting');
 
 function ting_infomedia_get_article($id) {
 dpm(__FUNCTION__);
 
-/*
-  try {
+
+
+$params = array(
+  'libraryCode' => '718300',
+  'userId' => '0019',
+  'userPinCode' => '0019',  
+  'articleIdentifier' => array('faust'=>'27882501'),
+  'outputType'=>'xml',
+);
+
+$client = new ting_client_class();
+$ret = $client->do_infomedia($params);
+
+print($ret);
+
+
+  /*try {
     $factory = ting_get_request_factory();
   }
   catch( TingClientException $e ) {
