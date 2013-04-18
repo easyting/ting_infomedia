@@ -7,6 +7,8 @@ module_load_include('inc', 'ting_infomedia', 'includes/ting_infomedia.webservice
 
 /**
  * Implements hook_ting_client_webservice (@see ting_client.module)
+ * this module does not implement its own request, but uses
+ * ting-client/lib/request/TingClientInfomediaArticleRequest
  * */
 function ting_infomedia_ting_client_webservice() {
   $ret = array();
@@ -136,6 +138,10 @@ function ting_infomedia_ting_openformat_getobject_params() {
  * return the parsed html
  */
 function ting_infomedia_parse_article($id) {
+  
+  $libraryList = bibdk_navfors_get_library_list('infomedia');
+  dpm($libraryList);
+  
   $html = FALSE;
 
   $obj = ting_infomedia_get_article($id);
