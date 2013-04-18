@@ -21,10 +21,12 @@ function ting_infomedia_field_formatter_info() {
   );
 }
 
+
 /**
  * Implements hook_field_formatter_view().
  */
 function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+
   $element = array();
 
   foreach ($items as $delta => $item) {
@@ -32,7 +34,7 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
       if ($relation->relationType == 'dbcaddi:hasOnlineAccess' && $entity->manifestation->main->type->{'$'} == 'Avisartikel') {
         // $relation->relationUri:
         // [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
-        $link = ting_infomedia_get_link($entity->ding_entity_id, $relation->relationUri);
+        $link = _ting_infomedia_get_link($entity->ding_entity_id, $relation->relationUri);
         $element[$delta]['#markup'] = theme('ting_infomedia_button', array('ting_infomedia_button' => $link));
       }
     }
@@ -41,58 +43,74 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
   return $element;
 }
 
+
 /**
- * @param $url
- * @internal param $id
+ * Set parameters for Infomedia link.
+ * Check if user is a ding_user, and has access to Infomedia
+ *
+ * @param $id
+ * @param $relationUri
  * @return array
  */
-function ting_infomedia_get_link($id, $relationUri) {
+function _ting_infomedia_get_link($id, $relationUri) {
+
   $title = t('infomedia_link_text', array(), array('context' => 'ting_infomedia'));
 
+  $user_status = _ting_infomedia_get_user_status();
+
   $link = array(
-    '#href' => '#' . $id,
-    // '#href' => ting_infomedia_convert_url_to_link(),
+    '#href' => _ting_infomedia_get_href($id, $user_status, $relationUri),
     '#title' => $title,
-    'data-pid' => $id,
-    'user-message' => ting_infomedia_get_user_message($relationUri),
+    '#popup' => (($user_status == 'user_is_infomedia_user') ? 'bibdk-popup-link ' : ''),
+    '#data-pid' => $id,
+    '#user-message' => _ting_infomedia_get_user_message($user_status, $relationUri),
   );
+
   return $link;
 }
 
+
 /**
- * @return mixed
+ * @return user status
  */
-function ting_infomedia_convert_url_to_link() {
-  // NOTE url is of type
-  //XXX get/set faust - currently hardcoded!
-  $url = '[useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]';
-  $wsurl = variable_get('ting_infomedia_url', FALSE);
+function _ting_infomedia_get_user_status() {
+  global $user;
+
+  if ( !ding_user_is_provider_user($user) ) {
+    return 'user_is_not_provider_user';
+  }
+
   $favourites = _ting_infomedia_get_favourites();
-  $libraryCode = NULL;
-  $userId = NULL;
-  $userPinCode = NULL;
 
   if (empty($favourites)) {
-    // user has no favourite library - set some message
+    return 'user_has_no_favourite_library';
   }
-  
+
+  $libraryCode = $userId = $userPinCode = NULL;
+
   foreach ($favourites as $fav) {
     $favourite = unserialize($fav);
-    if ($favourite->getOrderAgency()) {
+    if ( $favourite->getOrderAgency() ) {
       $libraryCode = $favourite->getAgencyId();
       $userId = $favourite->getUserId();
       $userPinCode = $favourite->getPinCode();
       break;
     }
   }
-  if ($libraryCode && $userId && $userPinCode) {
-    $ret = str_replace(array('[useraccessinfomedia]', '[libraryCode]', '[userId]', '[userPinCode]'), array($wsurl, $libraryCode, $userId, $userPinCode), $url);
+
+  if ( !$libraryCode && !$userId && !$userPinCode ) {
+    return 'user_no_userdata';
   }
-  else{
-    // user has incomplete userdata - set some message
+
+  if ( !($libraryCode && $userId && $userPinCode) ) {
+    return 'user_incomplete_userdata';
   }
-  return $ret;
+
+  // to do: check om favoritbibliotek har adgang til Infomedia
+
+  return 'user_is_infomedia_user';
 }
+
 
 /**
  * @return TingClientAgencyBranch
@@ -116,35 +134,58 @@ function _ting_infomedia_get_favourites() {
  *
  * @return String
  */
-function ting_infomedia_get_user_message($relationUri) {
+function _ting_infomedia_get_user_message($user_status, $relationUri) {
   global $user;
 
-  if ( !ding_user_is_provider_user($user) ) {
-    return l(t('user_is_not_provider_user', array(), array('context' => 'ting_infomedia')), 'user');
+  switch ( $user_status ) {
+    CASE 'user_is_not_provider_user': // link to login
+          return l(t($user_status, array(), array('context' => 'ting_infomedia')), 'user');
+          break;
+    CASE 'user_has_no_favourite_library': // link to favorites
+    CASE 'user_no_userdata':
+    CASE 'user_incomplete_userdata':
+          return l( t($user_status, array(), array('context' => 'ting_infomedia')), 'user/' . $user->uid . '/edit/bibdk_favourite_list');
+          break;
+    DEFAULT:
+          return  t($user_status, array(), array('context' => 'ting_infomedia'));
   }
-
-  // NOTE url is of type   [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
-  $parts = explode('&', $relationUri);
-  foreach ( $parts as $part ) {
-    $part = explode('=', $part);
-    if ( $part[0] == 'faust' ) {
-      $faust = $part[1];
-    }
-  }
-
-  return l(
-    t('user_is_provider_user', array(), array('context' => 'ting_infomedia')),
-    'overlay/infomedia/' . $faust,
-    array(
-      'attributes'=>array(
-        'title'=>'foo bar',
-        'rel'=>'infomedia',
-        'class'=>array(
-          'bibdk-popup-link',
-        )
-      )
-    )
-  );
 
 }
+
+
+/**
+ * Get infomedia link href: Local anchor for error message, or link to popup.
+ *
+ * @param $id
+ * @param $user_status
+ * @param $relationUri
+ *
+ * @return string
+ */
+function _ting_infomedia_get_href($id, $user_status, $relationUri) {
+
+  switch ( $user_status ) {
+    CASE 'user_is_infomedia_user':
+          // NOTE url is of type   [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
+          $parts = explode('&', $relationUri);
+          foreach ( $parts as $part ) {
+            $part = explode('=', $part);
+            if ( $part[0] == 'faust' ) {
+              $faust = $part[1];
+            }
+          }
+          return url('overlay/infomedia/' . $faust); break;
+    DEFAULT:
+          return '#' . $id;
+  }
+
+}
+
+
+// translate status strings, so they are available when the module is enabled.
+t('user_is_not_provider_user', array(), array('context' => 'ting_infomedia'));
+t('user_has_no_favourite_library', array(), array('context' => 'ting_infomedia'));
+t('user_no_userdata', array(), array('context' => 'ting_infomedia'));
+t('user_incomplete_userdata', array(), array('context' => 'ting_infomedia'));
+t('user_is_infomedia_user', array(), array('context' => 'ting_infomedia'));
 

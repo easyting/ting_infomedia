@@ -12,7 +12,7 @@ function ting_infomedia_ting_client_webservice() {
   $ret = array();
   $ret['infomediaArticle']['class'] = 'TingClientInfomediaArticleRequest';
   $ret['infomediaArticle']['url'] = 'ting_infomedia_url';
-  
+
   return $ret;
 }
 
