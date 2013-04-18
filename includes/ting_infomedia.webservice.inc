@@ -1,48 +1,64 @@
 <?php
+
 /**
  * Infomedia - retrieve article identified by faust
  *
  * @param int $id Faust
  * @return TingClientInfomediaResult
  */
-
 //module_load_include('client.inc', 'ting');
 
 function ting_infomedia_get_article($id) {
-dpm(__FUNCTION__);
+  dpm(__FUNCTION__);
+
+// if we get this far we can assume that favourites are set in session
+
+  $favourites = _ting_infomedia_get_favourites();
+  $libraryCode = NULL;
+  $userId = NULL;
+  $userPinCode = NULL;
+
+  foreach ($favourites as $fav) {
+    $favourite = unserialize($fav);
+    if ($favourite->getOrderAgency()) {
+      $libraryCode = $favourite->getAgencyId();
+      $userId = $favourite->getUserId();
+      $userPinCode = $favourite->getPinCode();
+      break;
+    }
+  }
+  if ($libraryCode && $userId && $userPinCode) {
+    $params = array(
+      'libraryCode' => $libraryCode,
+      'userId' => $userId,
+      'userPinCode' => $userPinCode,
+      'articleIdentifier' => array('faust' => $id),
+      'outputType' => 'xml',
+    );
+  }
+
+  $client = new ting_client_class();
+  $ret = $client->do_infomedia($params);
+
+  print($ret);
 
 
-
-$params = array(
-  'libraryCode' => '718300',
-  'userId' => '0019',
-  'userPinCode' => '0019',  
-  'articleIdentifier' => array('faust'=>'27882501'),
-  'outputType'=>'xml',
-);
-
-$client = new ting_client_class();
-$ret = $client->do_infomedia($params);
-
-print($ret);
-
-
-  /*try {
+  /* try {
     $factory = ting_get_request_factory();
-  }
-  catch( TingClientException $e ) {
+    }
+    catch( TingClientException $e ) {
     watchdog($e->message);
-  }
+    }
 
-  $request = $factory->getInfomediaArticleRequest();
-  $request->makeGet();
-  $request->setFaust($id);
+    $request = $factory->getInfomediaArticleRequest();
+    $request->makeGet();
+    $request->setFaust($id);
 
-  ting_infomedia_add_user_creds($request);
-  $ret = $request->parse(ting_execute($request->getRequest()));
+    ting_infomedia_add_user_creds($request);
+    $ret = $request->parse(ting_execute($request->getRequest()));
 
-  return $ret;
-*/
+    return $ret;
+   */
 }
 
 /**
@@ -52,7 +68,7 @@ print($ret);
  * @return TingClientInfomediaResult
  */
 function ting_infomedia_check_article($id) {
-dpm(__FUNCTION__);
+  dpm(__FUNCTION__);
   $request = ting_get_request_factory()->getInfomediaArticleRequest();
   $request->makeCheck();
   $request->setFaust($id);
@@ -70,7 +86,7 @@ dpm(__FUNCTION__);
  * @return TingClientInfomediaResult
  */
 function ting_infomedia_get_review($id, $id_is_isbn = FALSE) {
-dpm(__FUNCTION__);
+  dpm(__FUNCTION__);
   $request = ting_get_request_factory()->getInfomediaReviewRequest();
   $request->makeGet();
 
@@ -86,7 +102,7 @@ dpm(__FUNCTION__);
 }
 
 function checkUser() {
-dpm(__FUNCTION__);
+  dpm(__FUNCTION__);
   return TRUE;
   // TODO implement
 }
@@ -101,7 +117,7 @@ dpm(__FUNCTION__);
  * @return TingClientInfomediaResult
  */
 function ting_infomedia_check_review($id, $id_is_isbn = FALSE) {
-dpm(__FUNCTION__);
+  dpm(__FUNCTION__);
   $request = ting_get_request_factory()->getInfomediaReviewRequest();
   $request->makeCheck();
 
@@ -127,7 +143,7 @@ dpm(__FUNCTION__);
  * @return TingClientInfomediaRequest
  */
 function ting_infomedia_add_user_creds(TingClientInfomediaRequest $request) {
-dpm(__FUNCTION__);
+  dpm(__FUNCTION__);
   try {
     $creds = ding_user_get_creds();
     $request->setUser($creds['name']);
@@ -135,8 +151,7 @@ dpm(__FUNCTION__);
     if ($agency = variable_get('ting_agency', FALSE)) {
       $request->setAgency($agency);
     }
-  }
-  catch(DingProviderAuthException $e) {//do nothing
+  } catch (DingProviderAuthException $e) {//do nothing
   }
 
   $name = isset($creds['name']) ? $creds['name'] : '';
