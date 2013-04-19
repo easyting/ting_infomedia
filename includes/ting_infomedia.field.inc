@@ -87,7 +87,7 @@ function _ting_infomedia_get_user_status() {
   }
 
   $libraryCode = $userId = $userPinCode = NULL;
-
+  
   foreach ($favourites as $fav) {
     $favourite = unserialize($fav);
     if ( $favourite->getOrderAgency() ) {
@@ -161,7 +161,7 @@ function _ting_infomedia_get_favourites() {
       bibdk_favourite_add_favourite_to_session($favourite);
     }
   }
-  return $favourites;
+  return isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : array() ;
 }
 
 
