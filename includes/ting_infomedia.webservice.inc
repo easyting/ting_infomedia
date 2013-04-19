@@ -11,7 +11,8 @@
 function ting_infomedia_get_article($id) {
   dpm(__FUNCTION__);
 
-// if we get this far we can assume that favourites are set in session
+// TODO this is a new version of get_article method
+  
 
   $favourites = _ting_infomedia_get_favourites();
   $libraryCode = NULL;

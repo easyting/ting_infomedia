@@ -29,8 +29,31 @@ function ting_infomedia_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
+  
+  $items['overlay/infomedia/librarylist'] = array(
+    'title' => 'Infomedia',
+    'page callback' => 'ting_infomedia_librarylist',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
   return $items;
 }
+
+function ting_infomedia_librarylist(){
+  
+  $list = bibdk_navfors_get_library_list('infomedia');
+  foreach ($list as $agencyId) {
+    $agency = new TingAgency($agencyId);
+    $ret[] = $agency;
+  }
+  
+  
+  
+  print_r($list);
+}
+
 
 
 /**
