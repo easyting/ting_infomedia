@@ -112,10 +112,40 @@ function _ting_infomedia_get_user_status() {
     return 'not_infomedia_library';
   }
 
-  // to do: bor_check
+  $libraryCode = ( (int)$libraryCode === 0 ) ? $libraryCode : 'DK-' . $libraryCode;
+  $borchk = bibdk_borchk_request($userId, $userPinCode, $libraryCode);
+  $borchk_message = _ting_infomedia_borchk_parse_response($borchk->borrowerCheckResponse->requestStatus);
+  if ( $borchk_message ) {
+    return t($borchk_message, array(), array('context' => 'ting_infomedia'));
+  }
 
   return 'user_is_infomedia_user';
 }
+
+
+/**
+ * Parse response from borchk and return messages
+ *
+ * @param string $response
+ * @return array
+ */
+function _ting_infomedia_borchk_parse_response($response) {
+  dpm($response);
+  switch ($response) {
+    case 'ok' :
+      return;
+      break;
+    case 'borrower_not_found' :
+      return 'borchk_borrower_not_found';
+      break;
+    case 'error_in_request' :
+    case 'service unavailable' :
+    case 'borrowercheck_not_allowed' :
+    default :
+      return 'borchk_internal_error';
+  }
+}
+
 
 
 /**
@@ -199,4 +229,7 @@ t('user_has_no_favourite_library', array(), array('context' => 'ting_infomedia')
 t('user_no_userdata', array(), array('context' => 'ting_infomedia'));
 t('user_incomplete_userdata', array(), array('context' => 'ting_infomedia'));
 t('user_is_infomedia_user', array(), array('context' => 'ting_infomedia'));
+t('infomedia_library_list', array(), array('context' => 'ting_infomedia'));
 
+t('borchk_borrower_not_found', array(), array('context' => 'ting_infomedia'));
+t('borchk_internal_error', array(), array('context' => 'ting_infomedia'));
