@@ -9,10 +9,8 @@
 //module_load_include('client.inc', 'ting');
 
 function ting_infomedia_get_article($id) {
-  dpm(__FUNCTION__);
 
-// if we get this far we can assume that favourites are set in session
-
+  // if we get this far we can assume that favourites are set in session
   $favourites = _ting_infomedia_get_favourites();
   $libraryCode = NULL;
   $userId = NULL;
@@ -40,25 +38,8 @@ function ting_infomedia_get_article($id) {
   $client = new ting_client_class();
   $ret = $client->do_infomedia($params);
 
-  print($ret);
+  return $ret;
 
-
-  /* try {
-    $factory = ting_get_request_factory();
-    }
-    catch( TingClientException $e ) {
-    watchdog($e->message);
-    }
-
-    $request = $factory->getInfomediaArticleRequest();
-    $request->makeGet();
-    $request->setFaust($id);
-
-    ting_infomedia_add_user_creds($request);
-    $ret = $request->parse(ting_execute($request->getRequest()));
-
-    return $ret;
-   */
 }
 
 /**
@@ -67,14 +48,15 @@ function ting_infomedia_get_article($id) {
  * @param int $id Faust
  * @return TingClientInfomediaResult
  */
+/*
 function ting_infomedia_check_article($id) {
-  dpm(__FUNCTION__);
   $request = ting_get_request_factory()->getInfomediaArticleRequest();
   $request->makeCheck();
   $request->setFaust($id);
   $request = ting_infomedia_add_user_creds($request);
   return TingClientInfomediaArticleRequest::parse(ting_execute($request));
 }
+*/
 
 /**
  * Infomedia - retrieve reviews for an item identified by faust or ISBN
@@ -85,8 +67,8 @@ function ting_infomedia_check_article($id) {
  *   Is $id an ISBN instead of faust
  * @return TingClientInfomediaResult
  */
+/*
 function ting_infomedia_get_review($id, $id_is_isbn = FALSE) {
-  dpm(__FUNCTION__);
   $request = ting_get_request_factory()->getInfomediaReviewRequest();
   $request->makeGet();
 
@@ -102,10 +84,10 @@ function ting_infomedia_get_review($id, $id_is_isbn = FALSE) {
 }
 
 function checkUser() {
-  dpm(__FUNCTION__);
   return TRUE;
   // TODO implement
 }
+*/
 
 /**
  * Infomedia - count how many reviews an item identified by faust or ISBN has
@@ -116,8 +98,8 @@ function checkUser() {
  *   Is $id an ISBN instead of faust
  * @return TingClientInfomediaResult
  */
+/*
 function ting_infomedia_check_review($id, $id_is_isbn = FALSE) {
-  dpm(__FUNCTION__);
   $request = ting_get_request_factory()->getInfomediaReviewRequest();
   $request->makeCheck();
 
@@ -131,6 +113,7 @@ function ting_infomedia_check_review($id, $id_is_isbn = FALSE) {
   $request = ting_infomedia_add_user_creds($request);
   return TingClientInfomediaReviewRequest::parse(ting_execute($request));
 }
+*/
 
 /**
  * Helper function used by infomedia wrapper functions
@@ -142,8 +125,8 @@ function ting_infomedia_check_review($id, $id_is_isbn = FALSE) {
  *   Request object to add user credentials to
  * @return TingClientInfomediaRequest
  */
+/*
 function ting_infomedia_add_user_creds(TingClientInfomediaRequest $request) {
-  dpm(__FUNCTION__);
   try {
     $creds = ding_user_get_creds();
     $request->setUser($creds['name']);
@@ -161,4 +144,4 @@ function ting_infomedia_add_user_creds(TingClientInfomediaRequest $request) {
   ding_provider_invoke_page('user', 'authenticate', $name, $pass);
   return $request;
 }
-
+*/
