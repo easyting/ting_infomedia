@@ -40,6 +40,7 @@ function ting_infomedia_menu() {
   return $items;
 }
 
+
 function ting_infomedia_librarylist() {
 
   $list = bibdk_navfors_get_library_list('infomedia');
@@ -167,7 +168,6 @@ function ting_infomedia_ting_openformat_getobject_params() {
   );
 }
 
-
 /**
  * retrive article from infomedia. Parse for errors, clean html and add html for errorhandling if needed.
  * return the parsed html
@@ -178,12 +178,12 @@ function ting_infomedia_parse_article($id) {
 
   $obj = ting_infomedia_get_article($id);
 
-  if( !empty($obj->error)) {
+  if (!empty($obj->error)) {
     return ting_infomedia_parse_for_errors($obj);
   }
   else {
-    foreach($obj->parts as $part=>$val) {
-      if($message = ting_infomedia_parse_for_article_error($val) ) {
+    foreach ($obj->parts as $part => $val) {
+      if ($message = ting_infomedia_parse_for_article_error($val)) {
         $val['article'] = $message;
       }
       $html = $val['article'];

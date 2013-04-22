@@ -87,7 +87,7 @@ function _ting_infomedia_get_user_status() {
   }
 
   $libraryCode = $userId = $userPinCode = NULL;
-  
+
   foreach ($favourites as $fav) {
     $favourite = unserialize($fav);
     if ( $favourite->getOrderAgency() ) {
@@ -130,7 +130,6 @@ function _ting_infomedia_get_user_status() {
  * @return array
  */
 function _ting_infomedia_borchk_parse_response($response) {
-  dpm($response);
   switch ($response) {
     case 'ok' :
       return;
