@@ -30,13 +30,9 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
   $element = array();
 
   foreach ($items as $delta => $item) {
-    foreach ($entity->manifestation->relationsData as $relation) {
-      if ($relation->relationType == 'dbcaddi:hasOnlineAccess' && $entity->manifestation->main->type->{'$'} == 'Avisartikel') {
-        // $relation->relationUri:
-        // [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
-        $link = _ting_infomedia_get_link($entity->ding_entity_id, $relation->relationUri);
-        $element[$delta]['#markup'] = theme('ting_infomedia_button', array('ting_infomedia_button' => $link));
-      }
+    if ($url = $entity->getInfomediaLink()) {
+      $link = _ting_infomedia_get_link($entity->ding_entity_id, $url);
+      $element[$delta]['#markup'] = theme('ting_infomedia_button', array('ting_infomedia_button' => $link));
     }
   }
 
