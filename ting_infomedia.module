@@ -29,8 +29,8 @@ function ting_infomedia_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['overlay/infomedia/librarylist'] = array(
-    'title' => 'Infomedia',
+  $items['overlay/infomedia/library_list'] = array(
+    'title' => 'Infomedia library list',
     'page callback' => 'ting_infomedia_librarylist',
     'page arguments' => array(2),
     'access callback' => TRUE,
@@ -44,12 +44,13 @@ function ting_infomedia_menu() {
 function ting_infomedia_librarylist() {
 
   $list = bibdk_navfors_get_library_list('infomedia');
+
   foreach ($list as $agencyId) {
     $agency = new TingAgency($agencyId);
     $ret[] = $agency;
   }
 
-  $ret['#markup'] = '<div>'.t('list_of_libraries_with_infomedia_acces').'</div>';
+  $ret['#markup'] = '<p class="library-list-header">'.t('list_of_libraries_with_infomedia_acces', array(), array('context' => 'ting_infomedia')).'</p>';
   foreach ($ret as $key => $val) {
     if (is_object($val)) {
       $branch = $val->getBranch();
@@ -138,7 +139,7 @@ function ting_infomedia_theme($existing, $type, $theme, $path) {
 
 /**
  * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings) (ie. Bibliotek.dk)
- * Creates a field for adding a URL for the Helpdesk webservice
+ * Adding infomedia url form field to webservices configuration form
  */
 function ting_infomedia_form_ting_client_admin_webservices_settings_alter(&$form, &$form_state, $form_id) {
   $form['infomedia'] = array(

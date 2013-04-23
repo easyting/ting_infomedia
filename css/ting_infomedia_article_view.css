@@ -8,14 +8,16 @@ h4 {
 }
 
 div.infomedia_HeadLine {
-  font-size:1.5em;
+  font-size: 1.5em;
   font-weight: bold;
+  min-height: 55px;
+  margin-right: 200px;
   padding-bottom: 0.25em;
 }
 
 div.infomedia_SubHeadLine {
   font-weight:bold;
-  margin-bottom:5px;
+  margin-bottom: 10px;
   margin-top:5px;
   font-size:1.1em;
 }
@@ -40,7 +42,7 @@ div#infomedia_wrap {
 
 div.infomedia_hedline {
   clear:both;
-  padding-top:5px;
+  padding-top:10px;
   font-weight:bold;
   font-size:1.1em;
   border-top:1px dotted #CCCCCC;
@@ -79,6 +81,8 @@ div.select {
 div.infomedia-image {
   float:right;
   position:relative;
+  margin-top: 20px;
+  margin-right: 20px;
   top:0.5em;
   right:0.5em;
 }
@@ -108,3 +112,7 @@ div.infomedia_logo {
   display:none;
 }
 
+div.infomedia-footer {
+  border-top: 1px dotted #CCCCCC;
+  text-align:center
+}
