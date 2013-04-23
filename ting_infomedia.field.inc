@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @file
  * Field definition for ting_infomedia_manifestation_link is moved to
  * ting_infomedia_field module in order to be able to disable modules that
  * implements the field.
@@ -45,21 +46,21 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
  * Check if user is a ding_user, and has access to Infomedia
  *
  * @param $id
- * @param $relationUri
+ * @param $relation_uri
  * @return array
  */
-function _ting_infomedia_get_link($id, $relationUri) {
+function _ting_infomedia_get_link($id, $relation_uri) {
 
   $title = t('infomedia_link_text', array(), array('context' => 'ting_infomedia'));
 
   $user_status = _ting_infomedia_get_user_status();
 
   $link = array(
-    '#href' => _ting_infomedia_get_href($id, $user_status, $relationUri),
+    '#href' => _ting_infomedia_get_href($id, $user_status, $relation_uri),
     '#title' => $title,
     '#popup' => (($user_status == 'user_is_infomedia_user') ? 'bibdk-popup-link ' : ''),
     '#data-pid' => $id,
-    '#user-message' => _ting_infomedia_get_user_message($user_status, $relationUri),
+    '#user-message' => _ting_infomedia_get_user_message($user_status, $relation_uri),
   );
 
   return $link;
@@ -82,34 +83,34 @@ function _ting_infomedia_get_user_status() {
     return 'user_has_no_favourite_library';
   }
 
-  $libraryCode = $userId = $userPinCode = NULL;
+  $library_code = $user_id = $user_pincode = NULL;
 
   foreach ($favourites as $fav) {
     $favourite = unserialize($fav);
     if ( $favourite->getOrderAgency() ) {
-      $libraryCode = $favourite->getAgencyId();
-      $userId = $favourite->getUserId();
-      $userPinCode = $favourite->getPinCode();
+      $library_code = $favourite->getAgencyId();
+      $user_id = $favourite->getUserId();
+      $user_pincode = $favourite->getPinCode();
       break;
     }
   }
 
-  if ( !$libraryCode && !$userId && !$userPinCode ) {
+  if ( !$library_code && !$user_id && !$user_pincode ) {
     return 'user_no_userdata';
   }
 
-  if ( !($libraryCode && $userId && $userPinCode) ) {
+  if ( !($library_code && $user_id && $user_pincode) ) {
     return 'user_incomplete_userdata';
   }
 
-  $libraryList = bibdk_navfors_get_library_list('infomedia');
+  $library_list = bibdk_navfors_get_library_list('infomedia');
 
-  if ( !in_array($libraryCode, $libraryList) ) {
+  if ( !in_array($library_code, $library_list) ) {
     return 'not_infomedia_library';
   }
 
-  $libraryCode = ( (int)$libraryCode === 0 ) ? $libraryCode : 'DK-' . $libraryCode;
-  $borchk = bibdk_borchk_request($userId, $userPinCode, $libraryCode);
+  $library_code = ( (int)$library_code === 0 ) ? $library_code : 'DK-' . $library_code;
+  $borchk = bibdk_borchk_request($user_id, $user_pincode, $library_code);
   $borchk_message = _ting_infomedia_borchk_parse_response($borchk->borrowerCheckResponse->requestStatus);
   if ( $borchk_message ) {
     return t($borchk_message, array(), array('context' => 'ting_infomedia'));
@@ -165,13 +166,13 @@ function _ting_infomedia_get_favourites() {
  *
  * @return String
  */
-function _ting_infomedia_get_user_message($user_status, $relationUri) {
+function _ting_infomedia_get_user_message($user_status, $relation_uri) {
   global $user;
 
   switch ( $user_status ) {
     CASE 'user_is_not_provider_user': // link to login
           return l(t($user_status, array(), array('context' => 'ting_infomedia')), 'user') . '<br/>' .
-                 l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes'=>array('rel'=>'bibdkFavorite', 'class'=>array('bibdk-popup-link'))));
+                 l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes' => array('rel' => 'bibdkFavorite', 'class' => array('bibdk-popup-link'))));
           break;
     CASE 'user_has_no_favourite_library': // link to favorites
     CASE 'user_no_userdata':
@@ -181,7 +182,7 @@ function _ting_infomedia_get_user_message($user_status, $relationUri) {
     CASE 'not_infomedia_library':
           return
             l( t($user_status, array(), array('context' => 'ting_infomedia')), 'user/' . $user->uid . '/edit/bibdk_favourite_list') . '<br/>' .
-            l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes'=>array('rel'=>'bibdkFavorite', 'class'=>array('bibdk-popup-link'))));
+            l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes' => array('rel' => 'bibdkFavorite', 'class' => array('bibdk-popup-link'))));
           break;
     DEFAULT:
           return  t($user_status, array(), array('context' => 'ting_infomedia'));
@@ -195,16 +196,16 @@ function _ting_infomedia_get_user_message($user_status, $relationUri) {
  *
  * @param $id
  * @param $user_status
- * @param $relationUri
+ * @param $relation_uri
  *
  * @return string
  */
-function _ting_infomedia_get_href($id, $user_status, $relationUri) {
+function _ting_infomedia_get_href($id, $user_status, $relation_uri) {
 
   switch ( $user_status ) {
     CASE 'user_is_infomedia_user':
           // NOTE url is of type   [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
-          $parts = explode('&', $relationUri);
+          $parts = explode('&', $relation_uri);
           foreach ( $parts as $part ) {
             $part = explode('=', $part);
             if ( $part[0] == 'faust' ) {

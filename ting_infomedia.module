@@ -1,8 +1,7 @@
 <?php
 
 // load field hooks
-module_load_include('inc', 'ting_infomedia', 'includes/ting_infomedia.field');
-module_load_include('inc', 'ting_infomedia', 'includes/ting_infomedia.webservice');
+module_load_include('inc', 'ting_infomedia', 'ting_infomedia.field');
 
 /**
  * Implements hook_ting_client_webservice (@see ting_client.module)
@@ -50,7 +49,7 @@ function ting_infomedia_librarylist() {
     $ret[] = $agency;
   }
 
-  $ret['#markup'] = '<p class="library-list-header">'.t('list_of_libraries_with_infomedia_acces', array(), array('context' => 'ting_infomedia')).'</p>';
+  $ret['#markup'] = '<p class="library-list-header">' . t('list_of_libraries_with_infomedia_acces', array(), array('context' => 'ting_infomedia')) . '</p>';
   foreach ($ret as $key => $val) {
     if (is_object($val)) {
       $branch = $val->getBranch();
@@ -58,13 +57,13 @@ function ting_infomedia_librarylist() {
         $branchName = $branch->branchName;
         if (isset($branchName)) {
           $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
-            'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+            'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch)),
             'tools' => theme('ting_agency_tools', array('branch' => $branch)),
             'address' => theme('ting_agency_address', array('branch' => $branch)),
             'contact' => theme('ting_agency_contact', array('branch' => $branch)),
               )
           );
-          $ret['#markup'] .= theme('ting_agency_library', array('branchName' => $branchName,'moreinfo'=>$moreinfo));
+          $ret['#markup'] .= theme('ting_agency_library', array('branchName' => $branchName, 'moreinfo' => $moreinfo));
         }
       }
     }
@@ -218,10 +217,10 @@ function ting_infomedia_parse_for_errors(TingClientInfomediaResult $result, &$er
 * parameter $part - an array holding óne article
 */
 function ting_infomedia_parse_for_article_error($part) {
-  if( !$part['verified'] ) {
+  if ( !$part['verified'] ) {
     return t('Article not verified');
   }
-  if( empty($part['article']) ) {
+  if ( empty($part['article']) ) {
     return t('Article not found on infomedia');
   }
   return FALSE;
@@ -246,3 +245,36 @@ function _ting_infomedia_clean_html(&$html) {
 }
 
 
+function ting_infomedia_get_article($id) {
+
+  // if we get this far we can assume that favourites are set in session
+  $favourites = _ting_infomedia_get_favourites();
+  $library_code = NULL;
+  $user_id = NULL;
+  $user_pincode = NULL;
+
+  foreach ($favourites as $fav) {
+    $favourite = unserialize($fav);
+    if ($favourite->getOrderAgency()) {
+      $library_code = $favourite->getAgencyId();
+      $user_id = $favourite->getUserId();
+      $user_pincode = $favourite->getPinCode();
+      break;
+    }
+  }
+  if ($library_code && $user_id && $user_pincode) {
+    $params = array(
+      'libraryCode' => $library_code,
+      'userId' => $user_id,
+      'userPinCode' => $user_pincode,
+      'articleIdentifier' => array('faust' => $id),
+      'outputType' => 'xml',
+    );
+  }
+
+  $client = new ting_client_class();
+  $ret = $client->do_infomedia($params);
+
+  return $ret;
+
+}

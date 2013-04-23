@@ -13,5 +13,5 @@ dependencies[] = virtual_field
 dependencies[] = bibdk_navfors
 
 
-files[] = includes/ting_infomedia.field.inc
-files[] = includes/ting_infomedia.webservice.inc
+files[] = ting_infomedia.field.inc
+files[] = test/ting_infomedia.test

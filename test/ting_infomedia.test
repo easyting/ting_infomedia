@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Tests the functionality of ting_infomedia.
+ */
+
+class TingInfomediaTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Ting InfoMedia',
+      'description' => 'ting_infomedia test.',
+      'group' => 'bibliotek.dk',
+    );
+  }
+
+  public function setUp() {
+    // $this->profile = 'minimal';
+    parent::setUp('ting_infomedia');
+    // menu_rebuild();
+  }
+
+
+  public function testRunner() {
+    // Create and log in our privileged user.
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'search content',
+      ));
+    $this->drupalLogin($this->privileged_user);
+    $this->_testFunctionN();
+    $this->_testWebTest();
+
+    return TRUE;
+
+  }
+
+
+ private function _testFunctionN() {
+    $elements = array();
+
+    $page = array();
+
+    $expected_result = array();
+
+    $result = _bibdk_custom_search_advanced_fields_parse_form($elements, $page);
+    $result = array();
+
+    $this->assertEqual($result, $expected_result, '_testFunctionN correctly parsed');
+  }
+
+  private function _testWebTest() {
+    // Test nn.
+    /*
+    $edit = array();
+    $page_title = $edit['bibdk_custom_search[0][page_title]'] = $this->randomName(8);
+    $this->drupalPost('admin/config/search/bibdk_custom_search', $edit, 'Save');
+    $this->assertText(
+      format_string('The page "@page" have been created.', array('@page' => $edit['bibdk_custom_search[0][page_title]']))
+    );
+    */
+
+  }
+
+}
