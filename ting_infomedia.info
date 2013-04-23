@@ -4,7 +4,7 @@ package = Ding!
 version = "7.x-1.8"
 core = 7.x
 
-; note bibdk_favourite has dependency to ting_agency
+; note bibdk_favourite has dependency to ting_agency. Also, the 'ting_agency_library' theme function is used here
 dependencies[] = bibdk_favourite
 dependencies[] = ding_user
 dependencies[] = ting_infomedia_field

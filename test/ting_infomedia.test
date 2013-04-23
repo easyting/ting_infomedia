@@ -17,7 +17,7 @@ class TingInfomediaTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    // $this->profile = 'minimal';
+    $this->profile = 'minimal';
     parent::setUp('ting_infomedia');
     // menu_rebuild();
   }
@@ -29,38 +29,68 @@ class TingInfomediaTestCase extends DrupalWebTestCase {
       'search content',
       ));
     $this->drupalLogin($this->privileged_user);
-    $this->_testFunctionN();
-    $this->_testWebTest();
+    $this->_test_clean_html();
+    $this->_ting_infomedia_parse_for_article_error_fail();
+    $this->_test_ting_infomedia_borchk_parse_response();
 
     return TRUE;
 
   }
 
-
- private function _testFunctionN() {
-    $elements = array();
-
-    $page = array();
-
-    $expected_result = array();
-
-    $result = _bibdk_custom_search_advanced_fields_parse_form($elements, $page);
-    $result = array();
-
-    $this->assertEqual($result, $expected_result, '_testFunctionN correctly parsed');
+  private function _test_clean_html() {
+    $string = '<p id="p1">lorem lipsum</p><hl2>lorem lipsum</hl2>';
+    $expected_result = '<p>lorem lipsum</p><h4>lorem lipsum</h4>';
+    _ting_infomedia_clean_html($string);
+    $this->assertEqual($string, $expected_result, '_test_clean_html correctly parsed');
   }
 
-  private function _testWebTest() {
-    // Test nn.
-    /*
-    $edit = array();
-    $page_title = $edit['bibdk_custom_search[0][page_title]'] = $this->randomName(8);
-    $this->drupalPost('admin/config/search/bibdk_custom_search', $edit, 'Save');
-    $this->assertText(
-      format_string('The page "@page" have been created.', array('@page' => $edit['bibdk_custom_search[0][page_title]']))
-    );
-    */
+  private function _ting_infomedia_parse_for_article_error_fail() {
+    $result = array('verified' => NULL);
+    $expected_result = 'Article not verified';
+    $result = ting_infomedia_parse_for_article_error($result);
+    $this->assertEqual($result, $expected_result, '_ting_infomedia_parse_for_article_error_fail correctly return "Article not verified"');
+
+    $result = array('verified' => TRUE, 'article' => '');
+    $expected_result = 'Article not found on infomedia';
+    $result = ting_infomedia_parse_for_article_error($result);
+    $this->assertEqual($result, $expected_result, '_ting_infomedia_parse_for_article_error_fail correctly return "Article not found on infomedia"');
+  }
+
+  private function _test_ting_infomedia_borchk_parse_response() {
+    $string = 'ok';
+    $expected_result = '';
+    $string = _ting_infomedia_borchk_parse_response($string);
+    $this->assertEqual($string, $expected_result, '_ting_infomedia_borchk_parse_response correctly return NULL');
+
+    $string = 'borrower_not_found';
+    $expected_result = 'borchk_borrower_not_found';
+    $string = _ting_infomedia_borchk_parse_response($string);
+    $this->assertEqual($string, $expected_result, '_ting_infomedia_borchk_parse_response correctly return "borchk_borrower_not_found"');
+
+    $string = 'error_in_request';
+    $expected_result = 'borchk_internal_error';
+    $string = _ting_infomedia_borchk_parse_response($string);
+    $this->assertEqual($string, $expected_result, '_ting_infomedia_borchk_parse_response correctly return "borchk_internal_error"');
+
+    $string = 'service unavailable';
+    $expected_result = 'borchk_internal_error';
+    $string = _ting_infomedia_borchk_parse_response($string);
+    $this->assertEqual($string, $expected_result, '_ting_infomedia_borchk_parse_response correctly return "borchk_internal_error"');
+
+    $string = 'borrowercheck_not_allowed';
+    $expected_result = 'borchk_internal_error';
+    $string = _ting_infomedia_borchk_parse_response($string);
+    $this->assertEqual($string, $expected_result, '_ting_infomedia_borchk_parse_response correctly return "borchk_internal_error"');
+
+    $string = 'foo bar';
+    $expected_result = 'borchk_internal_error';
+    $string = _ting_infomedia_borchk_parse_response($string);
+    $this->assertEqual($string, $expected_result, '_ting_infomedia_borchk_parse_response correctly return "borchk_internal_error"');
 
   }
+
+
+
+
 
 }

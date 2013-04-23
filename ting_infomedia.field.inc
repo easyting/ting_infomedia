@@ -113,7 +113,7 @@ function _ting_infomedia_get_user_status() {
   $borchk = bibdk_borchk_request($user_id, $user_pincode, $library_code);
   $borchk_message = _ting_infomedia_borchk_parse_response($borchk->borrowerCheckResponse->requestStatus);
   if ( $borchk_message ) {
-    return t($borchk_message, array(), array('context' => 'ting_infomedia'));
+    return $borchk_message;
   }
 
   return 'user_is_infomedia_user';
@@ -171,17 +171,17 @@ function _ting_infomedia_get_user_message($user_status, $relation_uri) {
 
   switch ( $user_status ) {
     CASE 'user_is_not_provider_user': // link to login
-          return l(t($user_status, array(), array('context' => 'ting_infomedia')), 'user') . '<br/>' .
+          return l(t($user_status, array(), array('context' => 'ting_infomedia.error')), 'user') . '<br/>' .
                  l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes' => array('rel' => 'bibdkFavorite', 'class' => array('bibdk-popup-link'))));
           break;
     CASE 'user_has_no_favourite_library': // link to favorites
     CASE 'user_no_userdata':
     CASE 'user_incomplete_userdata':
-          return l( t($user_status, array(), array('context' => 'ting_infomedia')), 'user/' . $user->uid . '/edit/bibdk_favourite_list');
+          return l( t($user_status, array(), array('context' => 'ting_infomedia.error')), 'user/' . $user->uid . '/edit/bibdk_favourite_list');
           break;
     CASE 'not_infomedia_library':
           return
-            l( t($user_status, array(), array('context' => 'ting_infomedia')), 'user/' . $user->uid . '/edit/bibdk_favourite_list') . '<br/>' .
+            l( t($user_status, array(), array('context' => 'ting_infomedia.error')), 'user/' . $user->uid . '/edit/bibdk_favourite_list') . '<br/>' .
             l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes' => array('rel' => 'bibdkFavorite', 'class' => array('bibdk-popup-link'))));
           break;
     DEFAULT:
@@ -221,12 +221,12 @@ function _ting_infomedia_get_href($id, $user_status, $relation_uri) {
 
 
 // translate status strings, so they are available when the module is enabled.
-t('user_is_not_provider_user', array(), array('context' => 'ting_infomedia'));
-t('user_has_no_favourite_library', array(), array('context' => 'ting_infomedia'));
-t('user_no_userdata', array(), array('context' => 'ting_infomedia'));
-t('user_incomplete_userdata', array(), array('context' => 'ting_infomedia'));
-t('user_is_infomedia_user', array(), array('context' => 'ting_infomedia'));
-t('infomedia_library_list', array(), array('context' => 'ting_infomedia'));
+t('user_is_not_provider_user', array(), array('context' => 'ting_infomedia.error'));
+t('user_has_no_favourite_library', array(), array('context' => 'ting_infomedia.error'));
+t('user_no_userdata', array(), array('context' => 'ting_infomedia.error'));
+t('user_incomplete_userdata', array(), array('context' => 'ting_infomedia.error'));
+t('user_is_infomedia_user', array(), array('context' => 'ting_infomedia.error'));
+t('infomedia_library_list', array(), array('context' => 'ting_infomedia.error'));
 
-t('borchk_borrower_not_found', array(), array('context' => 'ting_infomedia'));
-t('borchk_internal_error', array(), array('context' => 'ting_infomedia'));
+t('borchk_borrower_not_found', array(), array('context' => 'ting_infomedia.error'));
+t('borchk_internal_error', array(), array('context' => 'ting_infomedia.error'));

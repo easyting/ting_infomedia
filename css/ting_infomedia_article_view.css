@@ -101,11 +101,11 @@ div.infomedia_print {
 }
 
 div.infomedia_error {
-  border:1px #CCCCCC solid;
-  width:47%;
-  margin:1px;
-  padding:5px;
-  float:left;
+  font-size: 1.5em;
+  font-weight: bold;
+  min-height: 60px;
+  margin-right: 200px;
+  padding-bottom: 0.25em;
 }
 
 div.infomedia_logo {

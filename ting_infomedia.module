@@ -7,7 +7,7 @@ module_load_include('inc', 'ting_infomedia', 'ting_infomedia.field');
  * Implements hook_ting_client_webservice (@see ting_client.module)
  * this module does not implement its own request, but uses
  * ting-client/lib/request/TingClientInfomediaArticleRequest
- * */
+ */
 function ting_infomedia_ting_client_webservice() {
   $ret = array();
   $ret['infomediaArticle']['class'] = 'TingClientInfomediaArticleRequest';
@@ -40,6 +40,11 @@ function ting_infomedia_menu() {
 }
 
 
+/**
+ * Page callback function
+ *
+ * Return a render array
+ */
 function ting_infomedia_librarylist() {
 
   $list = bibdk_navfors_get_library_list('infomedia');
@@ -68,7 +73,6 @@ function ting_infomedia_librarylist() {
       }
     }
   }
-
   return $ret;
 }
 
@@ -97,7 +101,7 @@ function ting_infomedia_view($id) {
  * @theme; name of $type being processed
  * @path; directory path of theme or module
  *
- * return a render array http://randyfay.com/node/79
+ * return a render array
  */
 function ting_infomedia_theme($existing, $type, $theme, $path) {
   return array(
@@ -113,28 +117,30 @@ function ting_infomedia_theme($existing, $type, $theme, $path) {
   );
 }
 
+
 /**
  * Implements hook_form_FORM_ID_alter (ting_admin_ting_settings) (ie. Ding2)
  * Adding infomedia url form field to ting configuration form
  */
 /*
   function ting_infomedia_form_ting_admin_ting_settings_alter(&$form, &$form_state, $form_id) {
-  $form['infomedia'] = array(
-  '#type' => 'fieldset',
-  '#title' => t('Infomedia settings'),
-  '#description' => t('Settings for bibdk Infomedia', array(), array('context' => 'ting_infomedia')),
-  '#weight' => -3,
+    $form['infomedia'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Infomedia settings'),
+    '#description' => t('Settings for bibdk Infomedia', array(), array('context' => 'ting_infomedia')),
+    '#weight' => -3,
   );
 
   $form['infomedia']['ting_infomedia_url'] = array(
-  '#type' => 'textfield',
-  '#title' => t('Infomedia web service URL', array(), array('context' => 'ting_infomedia')),
-  '#description' => t('URL to the infomedia webservice (access to infomedia article base) , e.g. http://useraccessinfomedia.addi.dk/1.2/'),
-  '#required' => TRUE,
-  '#default_value' => variable_get('ting_infomedia_url', ''),
-  );
+    '#type' => 'textfield',
+    '#title' => t('Infomedia web service URL', array(), array('context' => 'ting_infomedia')),
+    '#description' => t('URL to the infomedia webservice (access to infomedia article base) , e.g. http://useraccessinfomedia.addi.dk/1.2/'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('ting_infomedia_url', ''),
+    );
   }
- */
+*/
+
 
 /**
  * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings) (ie. Bibliotek.dk)
@@ -157,8 +163,9 @@ function ting_infomedia_form_ting_client_admin_webservices_settings_alter(&$form
   );
 }
 
+
 /**
- * Implements hook_ting_openformat_getobject_params.
+ * Implements hook_ting_openformat_getobject_params. (@see ting_openformat.module)
  *
  * Add parameters to getObject request.
  */
@@ -167,6 +174,7 @@ function ting_infomedia_ting_openformat_getobject_params() {
     'relationData' => 'full',
   );
 }
+
 
 /**
  * retrive article from infomedia. Parse for errors, clean html and add html for errorhandling if needed.
@@ -178,17 +186,18 @@ function ting_infomedia_parse_article($id) {
 
   $obj = ting_infomedia_get_article($id);
 
-  if (!empty($obj->error)) {
+  if ( !empty($obj->error) ) {
     return ting_infomedia_parse_for_errors($obj);
   }
   else {
-    foreach ($obj->parts as $part => $val) {
+    foreach ( $obj->parts as $part => $val ) {
       if ($message = ting_infomedia_parse_for_article_error($val)) {
         $val['article'] = $message;
       }
       $html = $val['article'];
       // for now simply return the first article. TODO handle more articles
       _ting_infomedia_clean_html($html);
+
     }
   }
 
@@ -203,7 +212,7 @@ function ting_infomedia_parse_article($id) {
 function ting_infomedia_parse_for_errors(TingClientInfomediaResult $result, &$error = FALSE) {
   if ($result->error) {
     $error = array(
-      '#markup' => $result->error,
+      '#markup' => t($result->error, array(), array('context' => 'ting_infomedia.error')),
       '#prefix' => '<div class="infomedia_error">',
       '#suffix' => '</div>'
     );
@@ -218,10 +227,10 @@ function ting_infomedia_parse_for_errors(TingClientInfomediaResult $result, &$er
 */
 function ting_infomedia_parse_for_article_error($part) {
   if ( !$part['verified'] ) {
-    return t('Article not verified');
+    return t('Article not verified', array(), array('context' => 'ting_infomedia'));
   }
   if ( empty($part['article']) ) {
-    return t('Article not found on infomedia');
+    return t('Article not found on infomedia', array(), array('context' => 'ting_infomedia'));
   }
   return FALSE;
 }
@@ -262,7 +271,8 @@ function ting_infomedia_get_article($id) {
       break;
     }
   }
-  if ($library_code && $user_id && $user_pincode) {
+
+  if ( $library_code && $user_id && $user_pincode ) {
     $params = array(
       'libraryCode' => $library_code,
       'userId' => $user_id,
@@ -270,6 +280,10 @@ function ting_infomedia_get_article($id) {
       'articleIdentifier' => array('faust' => $id),
       'outputType' => 'xml',
     );
+  } else {
+    $err = new TingClientInfomediaResult();
+    $err->error = 'user_incomplete_userdata';
+    return $err;
   }
 
   $client = new ting_client_class();
