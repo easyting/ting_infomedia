@@ -229,16 +229,19 @@ function ting_infomedia_parse_for_article_error($part) {
 
 
 function _ting_infomedia_clean_html(&$html) {
+
   $patterns = array();
-  $patterns[0] = '/<p id="[.+]">/';
+  $patterns[0] = '/<p id="(.+)">/';
   $patterns[1] = '/<hl2>/';
   $patterns[2] = '/<\/hl2>/';
+
   $replacements = array();
   $replacements[0] = '<p>';
   $replacements[1] = '<h4>';
   $replacements[2] = '</h4>';
 
-  preg_replace($patterns, $replacements, $html);
+  $html = preg_replace($patterns, $replacements, $html);
+
 }
 
 
