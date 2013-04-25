@@ -5,7 +5,7 @@
   <span class="link-infomedia infomedia-title" data-pid="<?php print $ting_infomedia_button['#data-pid'] ?>"><?php print $ting_infomedia_button['#title'] ?></span>
 </a>
 
-<div class='element-wrapper visuallyhidden infomedia-wrapper'>
+<div class='popover element-wrapper visuallyhidden infomedia-wrapper'>
   <p class="user-msg"><?php print $ting_infomedia_button['#user-message'] ?></p>
   <p class='close icon icon-left icon-red-x'>&nbsp;</p>
 </div>
