@@ -127,6 +127,9 @@ function _ting_infomedia_get_user_status() {
  * @return array
  */
 function _ting_infomedia_borchk_parse_response($response) {
+  if ( is_object($response) ) {
+    $response = $response->{'$'};
+  }
   switch ($response) {
     case 'ok' :
       return;
