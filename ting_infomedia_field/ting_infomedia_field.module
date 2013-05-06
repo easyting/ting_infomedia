@@ -1,0 +1,32 @@
+<?php
+/**
+ * Field definition is moved to a seperate module in order to be able to disable
+ * modules that implements the field.
+ * see http://drupal.org/node/1285540
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function ting_infomedia_field_field_info() {
+  return array(
+    'ting_infomedia_link' => array(
+      'label' => t('Infomedia link'),
+      'description' => t('Link to Infomedia article'),
+      'default_widget' => 'hidden',
+      'default_formatter' => 'ting_infomedia_link_default',
+      'no_ui' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function ting_infomedia_field_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  foreach ($entities as $id => $entity) {
+    $items[$id][] = array(
+      'id' => $id,
+    );
+  }
+}

@@ -1,9 +1,17 @@
 name = Ting Infomedia
 description = Module for linking and viewing Infomedia articles and reviews.
 package = Ding!
-dependencies[] = blackhole
-dependencies[] = ctools
-dependencies[] = panels
-dependencies[] = page_manager
-version = "7.x-0.12"
+version = 7.x-0.13
 core = 7.x
+
+; note bibdk_favourite has dependency to ting_agency. Also, the 'ting_agency_library' theme function is used here
+dependencies[] = bibdk_favourite
+dependencies[] = ding_user
+dependencies[] = ting_infomedia_field
+dependencies[] = ting_openformat
+dependencies[] = virtual_field
+dependencies[] = bibdk_navfors
+
+
+files[] = ting_infomedia.field.inc
+files[] = test/ting_infomedia.test
