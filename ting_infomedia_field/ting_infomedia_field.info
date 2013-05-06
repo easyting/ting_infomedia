@@ -1,0 +1,6 @@
+name = Ting Infomedia field
+description = Module for linking and viewing Infomedia articles and reviews.
+package = Ding!
+core = 7.x
+
+dependencies[] = virtual_field

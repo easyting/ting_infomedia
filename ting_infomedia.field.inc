@@ -1,151 +1,237 @@
 <?php
+
 /**
  * @file
- * An example field using the Field API.
- *
- * This is updated from Barry Jaspan's presentation at Drupalcon Paris,
- * @link http://acquia.com/community/resources/acquia-tv/intro-field-api-module-developers Video Presentation @endlink
- *
- * Providing a field requires:
- * - Defining a field
- *   - hook_field_info()
- *   - hook_field_schema()
- *   - hook_field_validate()
- *   - hook_field_is_empty()
- *
- * - Defining a formatter for the field (the portion that outputs the field for
- *   display)
- *   - hook_field_formatter_info()
- *   - hook_field_formatter_view()
- *
- * - Defining a widget for the edit form
- *   - hook_field_widget_info()
- *   - hook_field_widget_form()
- *
- * *
-
- /**
-  * Implements hook_field_info()
-
-  * description of field
+ * Field definition for ting_infomedia_manifestation_link is moved to
+ * ting_infomedia_field module in order to be able to disable modules that
+ * implements the field.
+ * see http://drupal.org/node/1285540
  */
 
-function ting_infomedia_field_info() {
-  $ret = array(
-    'ting_infomedia' => array(
-      'label' => t('A link to infomedia articles'),
-      'description' => t('This field links to infomedia articles'),
-      // optional (for database)
-      'settings' => array('max_length'=>255,),
-      // see hook_widget_info
-      'default_widget' => 'hidden',
-      // see hook formatter_info
-      'default_formatter' => 'ting_infomedia_default',
-      // A boolean specifying that users should not be allowed to
-      // create fields and instances of this field type through the UI.
-      // Such fields can only be created programmatically with
-      // field_create_field() and field_create_instance().
-      'no_ui' => TRUE,
-    ),
-  );
-  return $ret;
-}
-
 /**
- * Implements hook_field_formatter_info
- *
- * Notes; 'field types' are passed on to hook_field_formatter_view
+ * Implements hook_field_formatter_info().
  */
 function ting_infomedia_field_formatter_info() {
   return array(
-    'ting_infomedia_default' => array(
+    'ting_infomedia_link_default' => array(
       'label' => t('Default'),
       'field types' => array(
-        'ting_infomedia',
+        'ting_infomedia_link',
       ),
     )
   );
 }
 
+
 /**
- * Implements hook_field_formatter_view()
+ * Implements hook_field_formatter_view().
  */
 function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
-  $id = $entity->ding_entity_id;
 
-  $relation_types = ting_infomedia_get_ting_relations();
-  switch($display['type']) {
-  case 'ting_infomedia_default' :
-    foreach($items as $delta=>$items) {
-      foreach ($entity->relations as $relation) {
-        if( isset($relation_types[$relation->type]) && $entity->ac_source == 'Artikler' ) {
-          $element[$delta] = 
-	    array(
-		  '#markup' => l(t('Read article'), ting_infomedia_get_article_link($id), array('attributes' => array('class' => 'infomedia_group','name'=>$relation->type))),
-		  );
-        }
-      }
+  $element = array();
+
+  foreach ($items as $delta => $item) {
+    if ($url = $entity->getInfomediaLink()) {
+      $link = _ting_infomedia_get_link($entity->ding_entity_id, $url);
+      $element[$delta]['#markup'] = theme('ting_infomedia_button', array('ting_infomedia_button' => $link));
     }
-    break;
   }
+
   return $element;
 }
 
+
 /**
- * Parse the entityid and return an url
+ * Set parameters for Infomedia link.
+ * Check if user is a ding_user, and has access to Infomedia
  *
- * @param String $entityid
+ * @param $id
+ * @param $relation_uri
+ * @return array
+ */
+function _ting_infomedia_get_link($id, $relation_uri) {
+
+  $title = t('infomedia_link_text', array(), array('context' => 'ting_infomedia'));
+
+  $user_status = _ting_infomedia_get_user_status();
+
+  $link = array(
+    '#href' => _ting_infomedia_get_href($id, $user_status, $relation_uri),
+    '#title' => $title,
+    '#popup' => (($user_status == 'user_is_infomedia_user') ? 'bibdk-popup-link ' : ''),
+    '#data-pid' => $id,
+    '#user-message' => _ting_infomedia_get_user_message($user_status, $relation_uri),
+  );
+
+  return $link;
+}
+
+
+/**
+ * @return user status
+ */
+function _ting_infomedia_get_user_status() {
+  global $user;
+
+  if ( !ding_user_is_provider_user($user) ) {
+    return 'user_is_not_provider_user';
+  }
+
+  $favourites = _ting_infomedia_get_favourites();
+
+  if (empty($favourites)) {
+    return 'user_has_no_favourite_library';
+  }
+
+  $library_code = $user_id = $user_pincode = NULL;
+
+  foreach ($favourites as $fav) {
+    $favourite = unserialize($fav);
+    if ( $favourite->getOrderAgency() ) {
+      $library_code = $favourite->getAgencyId();
+      $user_id = $favourite->getUserId();
+      $user_pincode = $favourite->getPinCode();
+      break;
+    }
+  }
+
+  if ( !$library_code && !$user_id && !$user_pincode ) {
+    return 'user_no_userdata';
+  }
+
+  if ( !($library_code && $user_id && $user_pincode) ) {
+    return 'user_incomplete_userdata';
+  }
+
+  $library_list = bibdk_navfors_get_library_list('infomedia');
+
+  if ( !in_array($library_code, $library_list) ) {
+    return 'not_infomedia_library';
+  }
+
+  $library_code = ( (int)$library_code === 0 ) ? $library_code : 'DK-' . $library_code;
+  $borchk = bibdk_borchk_request($user_id, $user_pincode, $library_code);
+  $borchk_message = _ting_infomedia_borchk_parse_response($borchk->borrowerCheckResponse->requestStatus);
+  if ( $borchk_message ) {
+    return $borchk_message;
+  }
+
+  return 'user_is_infomedia_user';
+}
+
+
+/**
+ * Parse response from borchk and return messages
+ *
+ * @param string $response
+ * @return array
+ */
+function _ting_infomedia_borchk_parse_response($response) {
+  if ( is_object($response) ) {
+    $response = $response->{'$'};
+  }
+  switch ($response) {
+    case 'ok' :
+      return;
+      break;
+    case 'borrower_not_found' :
+      return 'borchk_borrower_not_found';
+      break;
+    case 'error_in_request' :
+    case 'service unavailable' :
+    case 'borrowercheck_not_allowed' :
+    default :
+      return 'borchk_internal_error';
+  }
+}
+
+
+
+/**
+ * @return TingClientAgencyBranch
+ */
+function _ting_infomedia_get_favourites() {
+  if (isset($_SESSION['bibdk_favourites'])) {
+    $favourites = $_SESSION['bibdk_favourites'];
+  }
+  else {
+    $favourites = _bibdk_favourite_get_from_webservice();
+    foreach ($favourites as $favourite) {
+      bibdk_favourite_add_favourite_to_session($favourite);
+    }
+  }
+  return isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : array() ;
+}
+
+
+/**
+ * Determine user message, depending on logged in status
+ *
  * @return String
  */
-function ting_infomedia_get_article_link($entityid) {
-  $ids = explode(':', $entityid);
-  return 'ting/infomedia/' . $ids[1];
-}
+function _ting_infomedia_get_user_message($user_status, $relation_uri) {
+  global $user;
 
-/**
- * Implements hook_field_validate
- * TODO is some kind of validation needed?
- */
-function ting_infomedia_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
-  // do nothing
-}
-
-/**
- * Implements hook_field_is_empty
- * TODO; check
- */
-function ting_infomedia_is_empty($item, $field) {
-  return false;
-}
-
-/**
- * Implements hook_field_load().
- * Notes: Define custom load behavior for this module's field types.
- */
-function ting_infomedia_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
-  foreach ($entities as $id => $entity) {
-    // We could create relations as multiple values here, but it's
-    // cached after this hook, so we don't.
-    $items[$id][0] = array(
-      'id' => $id,
-    );
+  switch ( $user_status ) {
+    CASE 'user_is_not_provider_user': // link to login
+          return l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes' => array('rel' => 'bibdkFavorite', 'class' => array('bibdk-popup-link')))) .
+                 '<br/>' .
+                 l(t($user_status, array(), array('context' => 'ting_infomedia.error')), 'user');
+          break;
+    CASE 'user_has_no_favourite_library': // link to favorites
+    CASE 'user_no_userdata':
+    CASE 'user_incomplete_userdata':
+          return l( t($user_status, array(), array('context' => 'ting_infomedia.error')), 'user/' . $user->uid . '/edit/bibdk_favourite_list');
+          break;
+    CASE 'not_infomedia_library':
+          return
+            l( t('infomedia_library_list', array(), array('context' => 'ting_infomedia')), 'overlay/infomedia/library_list', array('attributes' => array('rel' => 'bibdkFavorite', 'class' => array('bibdk-popup-link')))) .
+            '<br/>' .
+            l( t($user_status, array(), array('context' => 'ting_infomedia.error')), 'user/' . $user->uid . '/edit/bibdk_favourite_list');
+          break;
+    DEFAULT:
+          return  t($user_status, array(), array('context' => 'ting_infomedia'));
   }
+
 }
+
 
 /**
- * Implements hook_field_formatter_prepare_view
- * Notes; add the field to given item(s)
- * we could also use hook_field_load or hook_field_prepare_view
+ * Get infomedia link href: Local anchor for error message, or link to popup.
+ *
+ * @param $id
+ * @param $user_status
+ * @param $relation_uri
+ *
+ * @return string
  */
+function _ting_infomedia_get_href($id, $user_status, $relation_uri) {
 
-function ting_infomedia_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
-  foreach ($entities as $id => $entity) {
-    // We could create relations as multiple values here, but it's
-    // cached after this hook, so we don't.
-    $items[$id][0] = array(
-      'id' => $id,
-    );
+  switch ( $user_status ) {
+    CASE 'user_is_infomedia_user':
+          // NOTE url is of type   [useraccessinfomedia]?action=getArticle&faust=89724244&libraryCode=[libraryCode]&userId=[userId]&userPinCode=[userPinCode]
+          $parts = explode('&', $relation_uri);
+          foreach ( $parts as $part ) {
+            $part = explode('=', $part);
+            if ( $part[0] == 'faust' ) {
+              $faust = $part[1];
+            }
+          }
+          return url('overlay/infomedia/' . $faust); break;
+    DEFAULT:
+          return '#' . $id;
   }
+
 }
 
+
+// translate status strings, so they are available when the module is enabled.
+t('user_is_not_provider_user', array(), array('context' => 'ting_infomedia.error'));
+t('user_has_no_favourite_library', array(), array('context' => 'ting_infomedia.error'));
+t('user_no_userdata', array(), array('context' => 'ting_infomedia.error'));
+t('user_incomplete_userdata', array(), array('context' => 'ting_infomedia.error'));
+t('user_is_infomedia_user', array(), array('context' => 'ting_infomedia.error'));
+t('infomedia_library_list', array(), array('context' => 'ting_infomedia.error'));
+
+t('borchk_borrower_not_found', array(), array('context' => 'ting_infomedia.error'));
+t('borchk_internal_error', array(), array('context' => 'ting_infomedia.error'));
