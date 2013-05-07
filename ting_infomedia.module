@@ -165,14 +165,12 @@ function ting_infomedia_form_ting_client_admin_webservices_settings_alter(&$form
 
 
 /**
- * Implements hook_ting_openformat_getobject_params. (@see ting_openformat.module)
+ * Implements hook_ting_openformat_getobject_params_alter. (@see ting_openformat.module)
  *
  * Add parameters to getObject request.
  */
-function ting_infomedia_ting_openformat_getobject_params() {
-  return array(
-    'relationData' => 'uri',
-  );
+function ting_infomedia_ting_openformat_getobject_params_alter(&$params) {
+  $params['relationData'] = 'uri';
 }
 
 
@@ -223,7 +221,7 @@ function ting_infomedia_parse_for_errors(TingClientInfomediaResult $result, &$er
 
 /**
 * Parse for error on article-level. Not verified, empty etc.
-* parameter $part - an array holding óne article
+* parameter $part - an array holding one article
 */
 function ting_infomedia_parse_for_article_error($part) {
   if ( !$part['verified'] ) {
