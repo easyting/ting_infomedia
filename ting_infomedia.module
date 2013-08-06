@@ -27,15 +27,15 @@ function ting_infomedia_menu() {
  * Return a render array
  */
 function ting_infomedia_view($id) {
-return array(
-    '#markup' => '<div id="article-wrapper">' . render(ting_infomedia_parse_article($id)). '</div>',
+  $article = ting_infomedia_parse_article($id);
+  return array(
+    '#markup' => '<div id="article-wrapper">' . render($article). '</div>',
     '#theme' => 'ting_infomedia_article',
     '#attached' => array(
       'css' => array(drupal_get_path('module', 'ting_infomedia') . '/ting_infomedia_article_view.css'),
     ),
   );
 }
-
 
 /**
  * Implements hook_theme
@@ -90,9 +90,11 @@ function ting_infomedia_anchor_info() {
   // We need to know what kind of hasOnlineAccess
   // is provided with this object and return relevant anchor information.
   $object = menu_get_object('ting_object', 2);
-  if ($object->getAc_source() != 'Artikler') {
+  $url = variable_get('ting_infomedia_url');
+  if ($object->getAc_source() != 'Artikler' || empty($url)) {
     unset($relations['dbcaddi:hasOnlineAccess']);
   }
+
   return $relations;
 }
 
@@ -117,7 +119,10 @@ function ting_infomedia_parse_article($id) {
   $html = FALSE;
   $obj = ting_infomedia_get_article($id);
 
-  if( !empty($obj->error)) {
+  if (empty($obj)) {
+    return NULL;
+  }
+  elseif( !empty($obj->error)) {
     return ting_infomedia_parse_for_errors($obj);
   }
   else {

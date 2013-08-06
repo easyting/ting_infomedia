@@ -11,19 +11,21 @@ module_load_include('client.inc', 'ting');
 function ting_infomedia_get_article($id) {
   try {
     $factory = ting_get_request_factory();
+    $request = $factory->getInfomediaArticleRequest();
+    if (empty($request)) {
+      return NULL;
+    }
+    $request->makeGet();
+    $request->setFaust($id);
+
+    ting_infomedia_add_user_creds($request);
+    $ret = $request->parse(ting_execute($request->getRequest()));
+
+    return $ret;
   }
-  catch( TingClientException $e ) {
+  catch(TingClientException $e) {
     watchdog($e->message);
   }
-
-  $request = $factory->getInfomediaArticleRequest();
-  $request->makeGet();
-  $request->setFaust($id);
- 
-  ting_infomedia_add_user_creds($request);
-  $ret = $request->parse(ting_execute($request->getRequest()));
-
-  return $ret;
 }
 
 /**
@@ -112,14 +114,14 @@ function ting_infomedia_add_user_creds(TingClientInfomediaRequest $request) {
       $request->setAgency($agency);
     }
   }
-  catch(DingProviderAuthException $e) {//do nothing 
+  catch(DingProviderAuthException $e) {//do nothing
   }
 
   $name = isset($creds['name']) ? $creds['name'] : '';
-  $pass = isset($creds['pass']) ? $creds['pass'] : '';  
- 
+  $pass = isset($creds['pass']) ? $creds['pass'] : '';
+
   // check if user is authenticated
-  ding_provider_invoke_page('user', 'authenticate', $name, $pass); 
+  ding_provider_invoke_page('user', 'authenticate', $name, $pass);
   return $request;
 }
 
