@@ -1,9 +1,10 @@
 name = Ting Infomedia
 description = Module for linking and viewing Infomedia articles and reviews.
 package = Ding!
-dependencies[] = blackhole
+core = 7.x
+version = "7.x-1.11"
+
+dependencies[] = virtual_field
 dependencies[] = ctools
 dependencies[] = panels
 dependencies[] = page_manager
-version = "7.x-1.11"
-core = 7.x
