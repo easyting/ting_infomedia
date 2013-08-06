@@ -2,7 +2,7 @@ name = Ting Infomedia
 description = Module for linking and viewing Infomedia articles and reviews.
 package = Ding!
 core = 7.x
-version = "7.x-1.11"
+version = "7.x-1.14"
 
 dependencies[] = virtual_field
 dependencies[] = ctools
