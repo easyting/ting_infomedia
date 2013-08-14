@@ -80,7 +80,7 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
     foreach($items as $delta=>$items) {
       foreach ($entity->relations as $relation) {
         if( isset($relation_types[$relation->type]) && $entity->ac_source == 'Artikler' ) {
-          $element[$delta] = 
+          $element[$delta] =
 	    array(
 		  '#markup' => l(t('Read article'), ting_infomedia_get_article_link($id), array('attributes' => array('class' => 'infomedia_group','name'=>$relation->type))),
 		  );
@@ -100,7 +100,13 @@ function ting_infomedia_field_formatter_view($entity_type, $entity, $field, $ins
  */
 function ting_infomedia_get_article_link($entityid) {
   $ids = explode(':', $entityid);
-  return 'ting/infomedia/' . $ids[1];
+  if (count($ids) > 1) {
+    $id = $ids[1];
+  }
+  else {
+    $id = $ids[0];
+  }
+  return 'ting/infomedia/' . $id;
 }
 
 /**
