@@ -112,7 +112,7 @@ function ting_infomedia_form_ting_admin_ting_settings_alter(&$form, &$form_state
 }
 
 /**
- * retrive article from infomedia. Parse for errors, clean html and add html for errorhandling if needed.
+ * Retrive article from infomedia. Parse for errors, clean html and add html for error handling if needed.
  * return the parsed html
  */
 function ting_infomedia_parse_article($id) {
@@ -207,4 +207,3 @@ function ting_infomedia_ctools_plugin_api($module, $api) {
     return array('version' => 1);
   }
 }
-
